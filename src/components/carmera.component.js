@@ -15,7 +15,7 @@ const WebcamCapture = ({webcamRef, setFrame}) => {
   // The function for capturing the video frame
   const handleUserMedia = () => {
 
-    if (webcamRef.current === null) {
+    if (webcamRef.current === null || webcamRef.current.stream === undefined) {
       return;
     }
 
