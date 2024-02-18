@@ -1,5 +1,7 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import Webcam from "react-webcam";
+
+const RENDER_INTERVAL = 1000;
 
 
 const videoConstraints = {
@@ -8,11 +10,15 @@ const videoConstraints = {
   facingMode: "user"
 };
 
-const WebcamCapture = () => {
+const WebcamCapture = ({webcamRef, setFrame}) => {
 
   // The function for capturing the video frame
-  const webcamRef = useRef(null);
   const handleUserMedia = () => {
+
+    if (webcamRef.current === null) {
+      return;
+    }
+
     const stream = webcamRef.current.stream;
     const videoTrack = stream.getVideoTracks()[0];
     const imageCapture = new ImageCapture(videoTrack);
@@ -23,6 +29,7 @@ const WebcamCapture = () => {
       context.drawImage(imageBitmap, 0, 0);
       const imageData = context.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
       const data = new Uint8Array(imageData.data.buffer);
+      setFrame(data);
       console.log(data);
     })
   }
@@ -30,7 +37,7 @@ const WebcamCapture = () => {
   // Capture video frame as stream on interval = 1 sec
   let intervalId = null;
   const handleUserMediaWithInterval = () => {
-    intervalId = setInterval(handleUserMedia, 500);
+    intervalId = setInterval(handleUserMedia, RENDER_INTERVAL);
   }
 
   useEffect(() => {
