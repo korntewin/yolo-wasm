@@ -1,38 +1,40 @@
-use base64::{engine::general_purpose, Engine};
-use std::io::Cursor;
+use crate::coco_classes::NAMES as COCOE_CLASS_NAMES;
 use crate::log::log;
-use crate::io::LAZY_MODEL;
-use candle_core::{Device, Tensor, DType, Error, IndexOp};
-use candle_nn::Module;
 use crate::yolov8_model::Bbox;
-use crate::coco_classes::NAMES;
+use base64::{engine::general_purpose, Engine};
+use candle_core::{DType, Device, IndexOp, Result, Tensor};
+use image::DynamicImage;
+use image::ImageOutputFormat;
+use image::ImageResult;
+use std::io::Cursor;
 
 pub static MODEL_SIZE: &str = "n";
+pub static LEGEND_SIZE: u32 = 14;
+// Optimal width and height to maximize model speed
+pub static OPTIMAL_WIDTH: f32 = 256.;
+pub static OPTIMAL_HEIGHT: f32 = 256.;
 
+pub fn get_dyn_image(img: &str) -> ImageResult<DynamicImage> {
+    let base64_data = img.split(",").collect::<Vec<&str>>()[1];
+    let data = general_purpose::STANDARD.decode(base64_data).unwrap();
+    let dynimg = image::io::Reader::new(Cursor::new(data))
+        .with_guessed_format()
+        .unwrap()
+        .decode();
+    dynimg
+}
 
 pub fn transform_image(img: String) -> Option<Tensor> {
     let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
     log(&format!("Device: {:?}", device));
     // let dynimg =
     //     ImageBuffer::<Rgba<u8>, _>::from_vec(width, height, img).map(DynamicImage::ImageRgba8);
-    let base64_data = img.split(",").collect::<Vec<&str>>()[1];
-    let data = general_purpose::STANDARD.decode(base64_data).unwrap();
-    let dynimg = image::io::Reader::new(Cursor::new(data)).with_guessed_format().unwrap().decode();
+    let dynimg = get_dyn_image(&img);
 
     if let Ok(original_image) = dynimg {
         let (width, height) = {
-            let w = original_image.width() as usize;
-            let h = original_image.height() as usize;
             // Both w and h must be divisible by 32!
-            (w, h)
-            // if w < h {
-            //     let w = w * 640 / h;
-            //     // Sizes have to be divisible by 32.
-            //     (w / 32 * 32, 640)
-            // } else {
-            //     let h = h * 640 / w;
-            //     (640, h / 32 * 32)
-            // }
+            (OPTIMAL_WIDTH, OPTIMAL_HEIGHT)
         };
 
         let image_t = {
@@ -52,35 +54,19 @@ pub fn transform_image(img: String) -> Option<Tensor> {
             .unwrap()
         };
 
-        let image_t = (image_t.unsqueeze(0).unwrap().to_dtype(DType::F32).unwrap() * (1. / 255.)).unwrap();
+        let image_t =
+            (image_t.unsqueeze(0).unwrap().to_dtype(DType::F32).unwrap() * (1. / 255.)).unwrap();
 
         return Some(image_t);
     }
     None
 }
 
-
-pub fn annotate_image(img: String) -> Result<Tensor, Error> {
-    // log(&format!("Before tranforming image: {:?}", img));
-    let img = transform_image(img).unwrap();
-    // log(&format!("Finished tranformed image: {:?}", img));
-    let maybe_model = LAZY_MODEL.lock().unwrap();
-    log(&format!("Finished locking the model"));
-
-    if let Some(ref model) = *maybe_model {
-        log(&format!("Before model forwarding"));
-        let tensor = model.forward(&img).unwrap().squeeze(0);
-        log(&format!("After model forwarding"));
-        log(&format!("Tensor: {:?}", tensor));
-        return tensor
-    }
-
-    Err(Error::Msg("Model not found".to_string()))
-
-}
-
-
-pub fn identify_bboxes(pred: &Tensor, conf_threshold: f32, iou_threshold: f32) -> Result<Vec<Vec<Bbox>>, Error> {
+pub fn identify_bboxes(
+    pred: &Tensor,
+    conf_threshold: f32,
+    iou_threshold: f32,
+) -> Result<Vec<Vec<Bbox>>> {
     let (pred_size, npreds) = pred.dims2()?;
     let nclasses = pred_size - 4;
     let conf_threshold = conf_threshold.clamp(0.0, 1.0);
@@ -90,7 +76,11 @@ pub fn identify_bboxes(pred: &Tensor, conf_threshold: f32, iou_threshold: f32) -
 
     for index in 0..npreds {
         let pred = Vec::<f32>::try_from(pred.i((.., index))?)?;
-        let (class_idx, &max_conf)= pred[4..].iter().enumerate().max_by(|(_, x),  (_, y)| x.total_cmp(y)).unwrap();
+        let (class_idx, &max_conf) = pred[4..]
+            .iter()
+            .enumerate()
+            .max_by(|(_, x), (_, y)| x.total_cmp(y))
+            .unwrap();
         if max_conf > 0. && max_conf > conf_threshold {
             let bbox = Bbox {
                 xmin: pred[0] - pred[2] / 2.,
@@ -100,15 +90,78 @@ pub fn identify_bboxes(pred: &Tensor, conf_threshold: f32, iou_threshold: f32) -
                 confidence: max_conf,
                 keypoints: vec![],
             };
-            log(&format!("Found {}", NAMES[class_idx]));
+            log(&format!("Found {}", COCOE_CLASS_NAMES[class_idx]));
             bboxes[class_idx].push(bbox);
-        } 
+        }
     }
 
     non_maximum_suppression(&mut bboxes, iou_threshold);
 
     Ok(bboxes)
+}
 
+pub fn annotate_images(
+    orig_img: DynamicImage,
+    w: f32,
+    h: f32,
+    bboxes: &[Vec<Bbox>],
+) -> Result<DynamicImage> {
+    // Annotate the original image and print boxes information.
+    let (initial_h, initial_w) = (orig_img.height(), orig_img.width());
+    let w_ratio = initial_w as f32 / w as f32;
+    let h_ratio = initial_h as f32 / h as f32;
+    let mut img = orig_img.to_rgb8();
+    let font = Vec::from(include_bytes!("roboto-mono-stripped.ttf") as &[u8]);
+    let font = rusttype::Font::try_from_vec(font);
+    for (class_index, bboxes_for_class) in bboxes.iter().enumerate() {
+        for b in bboxes_for_class.iter() {
+            log(&format!("{}: {:?}", COCOE_CLASS_NAMES[class_index], b));
+            let xmin = (b.xmin * w_ratio) as i32;
+            let ymin = (b.ymin * h_ratio) as i32;
+            let dx = (b.xmax - b.xmin) * w_ratio;
+            let dy = (b.ymax - b.ymin) * h_ratio;
+            if dx >= 0. && dy >= 0. {
+                imageproc::drawing::draw_hollow_rect_mut(
+                    &mut img,
+                    imageproc::rect::Rect::at(xmin, ymin).of_size(dx as u32, dy as u32),
+                    image::Rgb([255, 0, 0]),
+                );
+            }
+            if LEGEND_SIZE > 0 {
+                if let Some(font) = font.as_ref() {
+                    imageproc::drawing::draw_filled_rect_mut(
+                        &mut img,
+                        imageproc::rect::Rect::at(xmin, ymin).of_size(dx as u32, LEGEND_SIZE),
+                        image::Rgb([170, 0, 0]),
+                    );
+                    let legend = format!(
+                        "{}   {:.0}%",
+                        COCOE_CLASS_NAMES[class_index],
+                        100. * b.confidence
+                    );
+                    imageproc::drawing::draw_text_mut(
+                        &mut img,
+                        image::Rgb([255, 255, 255]),
+                        xmin,
+                        ymin,
+                        rusttype::Scale::uniform(LEGEND_SIZE as f32 - 1.),
+                        font,
+                        &legend,
+                    )
+                }
+            }
+        }
+    }
+
+    Ok(DynamicImage::ImageRgb8(img))
+}
+
+pub fn img_to_base64(img: DynamicImage) -> ImageResult<String> {
+    let mut image_data: Vec<u8> = vec![];
+    let mut buf = Cursor::new(&mut image_data);
+    img.write_to(&mut buf, ImageOutputFormat::Jpeg(100))?;
+    let base64_data = general_purpose::STANDARD.encode(&image_data);
+    Ok(format!("data:image/jpeg;base64,{}", base64_data))
 }
 
 fn non_maximum_suppression(bboxes: &mut [Vec<Bbox>], threshold: f32) {
