@@ -16,16 +16,18 @@ function App() {
 
   const webcamRef = useRef(null);
   const [frame, setFrame] = useState(null);
+  const [screen, setScreen] = useState(null);
 
 
   return (
     <div className="App">
       <header className="App-header">
         <p> 1 + 5 = {add(1, 5)} </p>
-      <WebcamCapture webcamRef={webcamRef} setFrame={setFrame} />
+      <WebcamCapture webcamRef={webcamRef} setFrame={setFrame} setScreen={setScreen}/>
       <InferenceWebcam frame={frame} />
       {/* <ListWebcam /> */}
       </header>
+      <img src={screen} />
     </div>
   );
 }

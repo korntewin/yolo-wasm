@@ -17,9 +17,6 @@ pub struct ModelData {
     pub model_size: String,
 }
 
-unsafe impl Send for YoloV8 {}
-unsafe impl Sync for YoloV8 {}
-
 pub static LAZY_MODEL: Lazy<Mutex<Option<YoloV8>>> = Lazy::new(|| Mutex::new(None));
 
 fn model_multiplier(model_size: &str) -> Multiples {

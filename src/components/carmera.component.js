@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import Webcam from "react-webcam";
 
 const RENDER_INTERVAL = 500;
-const WIDTH = 4 * 32 * 2;
-const HEIGHT = 3 * 32 * 2;
+const WIDTH = 256;
+const HEIGHT = 256;
 
 const videoConstraints = {
   width: WIDTH,
@@ -11,7 +11,7 @@ const videoConstraints = {
   facingMode: "user"
 };
 
-const WebcamCapture = ({webcamRef, setFrame}) => {
+const WebcamCapture = ({ webcamRef, setFrame, setScreen }) => {
 
   // The function for capturing the video frame
   const handleUserMedia = () => {
@@ -20,18 +20,8 @@ const WebcamCapture = ({webcamRef, setFrame}) => {
       return;
     }
 
-    const stream = webcamRef.current.stream;
-    const videoTrack = stream.getVideoTracks()[0];
-    const imageCapture = new ImageCapture(videoTrack);
-
-    imageCapture.grabFrame().then(imageBitmap => {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext("2d");
-      context.drawImage(imageBitmap, 0, 0);
-      const imageData = context.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
-      const data = new Uint8Array(imageData.data.buffer);
-      setFrame(data);
-    })
+    const screenshot = webcamRef.current.getScreenshot();
+    setFrame(screenshot);
   }
 
   // Capture video frame as stream on interval = 1 sec
@@ -56,7 +46,18 @@ const WebcamCapture = ({webcamRef, setFrame}) => {
     width={WIDTH}
     videoConstraints={videoConstraints}
     onUserMedia={handleUserMedia}
-  />
+  >
+    {({ getScreenshot }) => (
+      <button
+        onClick={() => {
+          const imageSrc = getScreenshot();
+          setScreen(imageSrc);
+        }}
+      >
+        Capture photo
+      </button>
+    )}
+  </Webcam>
 };
 
 
