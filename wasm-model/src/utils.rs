@@ -17,14 +17,8 @@ pub fn transform_image(img: Vec<u8>, width: u32, height: u32) -> Option<Tensor> 
         let (width, height) = {
             let w = original_image.width() as usize;
             let h = original_image.height() as usize;
-            if w < h {
-                let w = w * 640 / h;
-                // Sizes have to be divisible by 32.
-                (w / 32 * 32, 640)
-            } else {
-                let h = h * 640 / w;
-                (640, h / 32 * 32)
-            }
+            (w, h)  
+            // Both w and h must be divisible by 32!
         };
 
         let image_t = {

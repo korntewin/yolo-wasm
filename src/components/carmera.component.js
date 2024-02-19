@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import Webcam from "react-webcam";
 
 const RENDER_INTERVAL = 500;
-const WIDTH = 426;
-const HEIGHT = 240;
+const WIDTH = 4 * 32 * 2;
+const HEIGHT = 3 * 32 * 2;
 
 const videoConstraints = {
   width: WIDTH,
@@ -31,7 +31,6 @@ const WebcamCapture = ({webcamRef, setFrame}) => {
       const imageData = context.getImageData(0, 0, imageBitmap.width, imageBitmap.height);
       const data = new Uint8Array(imageData.data.buffer);
       setFrame(data);
-      console.log(data);
     })
   }
 
@@ -52,9 +51,9 @@ const WebcamCapture = ({webcamRef, setFrame}) => {
   return <Webcam
     ref={webcamRef}
     audio={false}
-    height={720}
+    height={HEIGHT}
     screenshotFormat="image/jpeg"
-    width={1280}
+    width={WIDTH}
     videoConstraints={videoConstraints}
     onUserMedia={handleUserMedia}
   />

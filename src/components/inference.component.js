@@ -22,9 +22,11 @@ const InferenceWebcam = ({ frame }) => {
             const sum_value = sum_vec(sure_frame);
             const now = performance.now();
             // test_gen_img(sure_frame, WIDTH, HEIGHT);
-            test_lazy_model(sure_frame, WIDTH, HEIGHT);
-            const delta = performance.now() - now;
-            console.log("execution time: %.3f", delta)
+            test_lazy_model(sure_frame, WIDTH, HEIGHT)
+            const delta = performance.now() - now; 
+            console.log("execution time: %s", delta)
+            // const delta = performance.now() - now;
+            // console.log("execution time: %.3f", delta)
             return (<div>{sum_value}, {sure_frame.length}</div>);
         }
 

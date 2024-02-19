@@ -3,7 +3,6 @@ mod utils;
 mod io;
 pub mod yolov8_model;
 
-use image::{DynamicImage, ImageBuffer, Rgba};
 use log::log;
 pub use yolov8_model::YoloV8;
 use candle_core::Module;
@@ -26,7 +25,7 @@ pub fn sum_vec(img: Vec<u8>) -> i32 {
 
 #[wasm_bindgen]
 pub fn test_gen_img(img: Vec<u8>, width: u32, height: u32) {
-    let img = transform_image(img, width, height).unwrap();
+    let _img = transform_image(img, width, height).unwrap();
     log("Finished transform image");
 }
 
