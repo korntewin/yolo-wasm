@@ -11,7 +11,7 @@ const videoConstraints = {
   facingMode: "user"
 };
 
-const WebcamCapture = ({ webcamRef, setFrame, setScreen }) => {
+const WebcamCapture = ({ webcamRef, setFrame }) => {
 
   // The function for capturing the video frame
   const handleUserMedia = () => {
@@ -46,18 +46,7 @@ const WebcamCapture = ({ webcamRef, setFrame, setScreen }) => {
     width={WIDTH}
     videoConstraints={videoConstraints}
     onUserMedia={handleUserMedia}
-  >
-    {({ getScreenshot }) => (
-      <button
-        onClick={() => {
-          const imageSrc = getScreenshot();
-          setScreen(imageSrc);
-        }}
-      >
-        Capture photo
-      </button>
-    )}
-  </Webcam>
+  />
 };
 
 

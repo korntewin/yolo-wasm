@@ -4,9 +4,8 @@ import './App.css';
 
 import WebcamCapture from './components/carmera.component';
 import InferenceWebcam from './components/inference.component';
-import ListWebcam from './components/lscamera.component';
 
-import init, { add } from "wasm-model";
+import init from "wasm-model";
 
 // Initialize the wasm module
 await init();
@@ -16,18 +15,17 @@ function App() {
 
   const webcamRef = useRef(null);
   const [frame, setFrame] = useState(null);
-  const [screen, setScreen] = useState(null);
+  const [annotatedImgSrc, setAnnotatedImgSrc] = useState(null);
 
 
   return (
     <div className="App">
       <header className="App-header">
-        <p> 1 + 5 = {add(1, 5)} </p>
-      <WebcamCapture webcamRef={webcamRef} setFrame={setFrame} setScreen={setScreen}/>
-      <InferenceWebcam frame={frame} />
-      {/* <ListWebcam /> */}
+        <p> Object Detection with YOLOv8 </p>
+      <WebcamCapture webcamRef={webcamRef} setFrame={setFrame}/>
+      <InferenceWebcam frame={frame} setAnnotatedImgSrc={setAnnotatedImgSrc} />
+      <img src={annotatedImgSrc} alt="annotated" />
       </header>
-      <img src={screen} />
     </div>
   );
 }
