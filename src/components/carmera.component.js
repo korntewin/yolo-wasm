@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Webcam from "react-webcam";
 
-const RENDER_INTERVAL = 1000;
+const RENDER_INTERVAL = 60000;
 
 
 const videoConstraints = {
