@@ -30,7 +30,11 @@ const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {
             setAnnotatedImgSrc(annotated_img);
             const delta = performance.now() - now;
             console.log("execution time: %s", delta)
-            return (<div>YOLOv8 Model is ready</div>);
+            return (
+                <div>
+                    <h4>Annotated Video Stream</h4>
+                </div>
+            );
         }
 
         return (<div>Frame is not available yet</div>)

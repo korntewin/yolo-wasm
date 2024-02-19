@@ -21,10 +21,11 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p> Object Detection with YOLOv8 </p>
+      <h2> Object Detection with YOLOv8 </h2>
+      <h4> Original Video Stream </h4>
       <WebcamCapture webcamRef={webcamRef} setFrame={setFrame}/>
       <InferenceWebcam frame={frame} setAnnotatedImgSrc={setAnnotatedImgSrc} />
-      <img src={annotatedImgSrc} alt="annotated" />
+      {annotatedImgSrc && <img src={annotatedImgSrc} alt="annotated" />}
       </header>
     </div>
   );
