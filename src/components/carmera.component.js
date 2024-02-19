@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import Webcam from "react-webcam";
 
-const RENDER_INTERVAL = 500;
-const WIDTH = 256;
-const HEIGHT = 256;
+const RENDER_INTERVAL = 200;
+const WIDTH = 854;
+const HEIGHT = 480;
 
 const videoConstraints = {
   width: WIDTH,

@@ -11,8 +11,6 @@ use std::io::Cursor;
 pub static MODEL_SIZE: &str = "n";
 pub static LEGEND_SIZE: u32 = 14;
 // Optimal width and height to maximize model speed
-pub static OPTIMAL_WIDTH: f32 = 256.;
-pub static OPTIMAL_HEIGHT: f32 = 256.;
 
 pub fn get_dyn_image(img: &str) -> ImageResult<DynamicImage> {
     let base64_data = img.split(",").collect::<Vec<&str>>()[1];
@@ -24,7 +22,7 @@ pub fn get_dyn_image(img: &str) -> ImageResult<DynamicImage> {
     dynimg
 }
 
-pub fn transform_image(img: String) -> Option<Tensor> {
+pub fn transform_image(img: String, shrink_width: f32, shrink_height: f32) -> Option<Tensor> {
     let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
     log(&format!("Device: {:?}", device));
     // let dynimg =
@@ -34,7 +32,7 @@ pub fn transform_image(img: String) -> Option<Tensor> {
     if let Ok(original_image) = dynimg {
         let (width, height) = {
             // Both w and h must be divisible by 32!
-            (OPTIMAL_WIDTH, OPTIMAL_HEIGHT)
+            (shrink_width, shrink_height)
         };
 
         let image_t = {

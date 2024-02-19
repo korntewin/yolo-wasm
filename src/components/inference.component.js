@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { get_model, js_annotate_images } from "wasm-model";
-import { WIDTH, HEIGHT } from "./carmera.component";
 
 const IOU_THRESHOLD = 0.50;
 const CONF_THRESHOLD = 0.50;
+const SHRINK_WIDTH = 32 * 4;
+const SHRINK_HEIGHT = 32 * 4;
 
 
 const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {
@@ -23,7 +24,9 @@ const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {
         if (frame) {
             const sure_frame = frame;
             const now = performance.now();
-            const annotated_img = js_annotate_images(sure_frame, CONF_THRESHOLD, IOU_THRESHOLD);
+            const annotated_img = js_annotate_images(
+                sure_frame, SHRINK_WIDTH, SHRINK_HEIGHT, CONF_THRESHOLD, IOU_THRESHOLD
+            );
             setAnnotatedImgSrc(annotated_img);
             const delta = performance.now() - now;
             console.log("execution time: %s", delta)
