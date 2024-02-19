@@ -1,15 +1,15 @@
 use crate::log::log;
-pub use crate::yolov8_model::{YoloV8, Multiples};
 use candle_core::{Device, Tensor, DType};
-use candle_nn::VarBuilder;
 use image::{DynamicImage, ImageBuffer, Rgba};
 
-pub static YOLOV8_X_MODEL_URL: &str =
-    "https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8x.safetensors?download=true";
+// pub const YOLOV8_X_MODEL_URL: &str =
+//     "https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8{}.safetensors?download=true";
+pub static MODEL_SIZE: &str = "n";
 
 
 pub fn transform_image(img: Vec<u8>, width: u32, height: u32) -> Option<Tensor> {
-    let device = Device::Cpu;
+    let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
+    log(&format!("Device: {:?}", device));
     let dynimg =
         ImageBuffer::<Rgba<u8>, _>::from_vec(width, height, img).map(DynamicImage::ImageRgba8);
 

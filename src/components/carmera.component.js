@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 import Webcam from "react-webcam";
 
-const RENDER_INTERVAL = 60000;
-
+const RENDER_INTERVAL = 500;
+const WIDTH = 426;
+const HEIGHT = 240;
 
 const videoConstraints = {
-  width: 1280,
-  height: 720,
+  width: WIDTH,
+  height: HEIGHT,
   facingMode: "user"
 };
 
@@ -61,3 +62,4 @@ const WebcamCapture = ({webcamRef, setFrame}) => {
 
 
 export default WebcamCapture;
+export { WIDTH, HEIGHT };

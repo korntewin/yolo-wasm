@@ -26,26 +26,23 @@ pub fn sum_vec(img: Vec<u8>) -> i32 {
 
 #[wasm_bindgen]
 pub fn test_gen_img(img: Vec<u8>, width: u32, height: u32) {
-    let dynimg =
-        ImageBuffer::<Rgba<u8>, _>::from_vec(width, height, img).map(DynamicImage::ImageRgba8);
-    if let Some(dynimg) = dynimg {
-        log(&format!("Frame data size: {:?}", dynimg));
-    } else {
-        log("Failed to create image");
-    }
+    let img = transform_image(img, width, height).unwrap();
+    log("Finished transform image");
 }
 
 
 #[wasm_bindgen]
 pub fn test_lazy_model(img: Vec<u8>, width: u32, height: u32) {
+    // log(&format!("Before tranforming image: {:?}", img));
     let img = transform_image(img, width, height).unwrap();
-    log(&format!("Finished tranformed image: {:?}", img));
+    // log(&format!("Finished tranformed image: {:?}", img));
     let maybe_model = LAZY_MODEL.lock().unwrap();
     log(&format!("Finished locking the model"));
 
     if let Some(ref model) = *maybe_model {
         log(&format!("Before model forwarding"));
         let tensor = model.forward(&img).unwrap().squeeze(0);
+        log(&format!("After model forwarding"));
         log(&format!("Tensor: {:?}", tensor));
     } else {
         log("Model not loaded");

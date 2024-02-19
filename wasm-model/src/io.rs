@@ -1,5 +1,5 @@
 use crate::log::log;
-use crate::utils::YOLOV8_X_MODEL_URL;
+use crate::utils::MODEL_SIZE;
 use crate::yolov8_model::{YoloV8, Multiples};
 
 use wasm_bindgen::prelude::*;
@@ -22,6 +22,20 @@ unsafe impl Sync for YoloV8 {}
 
 pub static LAZY_MODEL: Lazy<Mutex<Option<YoloV8>>> = Lazy::new(|| Mutex::new(None));
 
+fn model_multiplier(model_size: &str) -> Multiples {
+    match model_size {
+        "s" => Multiples::s(),
+        "m" => Multiples::m(),
+        "l" => Multiples::l(),
+        "x" => Multiples::x(),
+        _ => Multiples::n(),
+    }
+}
+
+fn model_url(model_size: &str) -> String {
+    format!("https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8{}.safetensors?download=true", model_size)
+}
+
 
 pub async fn download_binary() -> ModelData {
     let window = web_sys::window().ok_or("window").unwrap();
@@ -31,7 +45,8 @@ pub async fn download_binary() -> ModelData {
         .mode(RequestMode::Cors)
         .cache(RequestCache::NoCache);
 
-    let request = Request::new_with_str_and_init(YOLOV8_X_MODEL_URL, opts).unwrap();
+    let url = model_url(MODEL_SIZE);
+    let request = Request::new_with_str_and_init(&url, opts).unwrap();
 
     let resp_value = JsFuture::from(window.fetch_with_request(&request)).await.unwrap();
 
@@ -52,9 +67,10 @@ pub async fn download_binary() -> ModelData {
 #[wasm_bindgen]
 pub async fn get_model() {
     let model_data = download_binary().await;
-    let device = Device::Cpu;
+    // let device = Device::Cpu;
+    let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
     let vb = unsafe { VarBuilder::from_buffered_safetensors(model_data.weights, DType::F32, &device).unwrap() };
-    let model = YoloV8::load(vb, Multiples::x(), 80).unwrap();
+    let model = YoloV8::load(vb, model_multiplier(MODEL_SIZE), 80).unwrap();
     log(&format!("Model loaded: {:?}", model));
     *LAZY_MODEL.lock().unwrap() = Some(model);
 }
