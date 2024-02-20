@@ -8,7 +8,6 @@ use image::ImageOutputFormat;
 use image::ImageResult;
 use std::io::Cursor;
 
-pub static MODEL_SIZE: &str = "n";
 pub static LEGEND_SIZE: u32 = 14;
 // Optimal width and height to maximize model speed
 

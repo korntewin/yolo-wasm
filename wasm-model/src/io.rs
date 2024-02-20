@@ -1,5 +1,4 @@
 use crate::log::log;
-use crate::utils::MODEL_SIZE;
 use crate::yolov8_model::{Multiples, YoloV8};
 
 use candle_core::{DType, Device};
@@ -36,7 +35,7 @@ fn model_url(model_size: &str) -> String {
     )
 }
 
-pub async fn download_binary() -> ModelData {
+pub async fn download_binary(model_size: &str) -> ModelData {
     let window = web_sys::window().ok_or("window").unwrap();
     let mut opts = RequestInit::new();
     let opts = opts
@@ -44,7 +43,7 @@ pub async fn download_binary() -> ModelData {
         .mode(RequestMode::Cors)
         .cache(RequestCache::NoCache);
 
-    let url = model_url(MODEL_SIZE);
+    let url = model_url(model_size);
     let request = Request::new_with_str_and_init(&url, opts).unwrap();
 
     let resp_value = JsFuture::from(window.fetch_with_request(&request))
@@ -66,14 +65,14 @@ pub async fn download_binary() -> ModelData {
 }
 
 #[wasm_bindgen]
-pub async fn get_model() {
-    let model_data = download_binary().await;
+pub async fn get_model(model_size: &str) {
+    let model_data = download_binary(model_size).await;
     // let device = Device::Cpu;
     let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
     let vb = unsafe {
         VarBuilder::from_buffered_safetensors(model_data.weights, DType::F32, &device).unwrap()
     };
-    let model = YoloV8::load(vb, model_multiplier(MODEL_SIZE), 80).unwrap();
+    let model = YoloV8::load(vb, model_multiplier(model_size), 80).unwrap();
     log(&format!("Model loaded: {:?}", model));
     *LAZY_MODEL.lock().unwrap() = Some(model);
 }

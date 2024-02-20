@@ -3,8 +3,9 @@ import { get_model, js_annotate_images } from "wasm-model";
 
 const IOU_THRESHOLD = 0.50;
 const CONF_THRESHOLD = 0.50;
-const SHRINK_WIDTH = 32 * 4;
-const SHRINK_HEIGHT = 32 * 4;
+const SHRINK_WIDTH = 32 * 7;
+const SHRINK_HEIGHT = 32 * 7;
+const MODEL_SIZE = "s"; // n, s, m, l, x
 
 
 const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {
@@ -12,7 +13,7 @@ const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
-        get_model().then(() => {
+        get_model(MODEL_SIZE).then(() => {
             console.log("Downloaded")
             setIsLoaded(true);
         })
@@ -37,15 +38,10 @@ const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {
             );
         }
 
-        return (<div>Frame is not available yet</div>)
+        return (<div>Setting up camera</div>)
     } else {
-        return <div>Loading...</div>;
+        return <div>Loading YOLO model...</div>;
     }
-    // if (sure_frame.length > 1) {
-    //     gen_img(sure_frame);
-    // }
-
-
 }
 
 
