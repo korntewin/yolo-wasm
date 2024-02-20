@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { get_model, js_annotate_images } from "wasm-model";
 
-const IOU_THRESHOLD = 0.50;
-const CONF_THRESHOLD = 0.50;
-const SHRINK_WIDTH = 32 * 7;
-const SHRINK_HEIGHT = 32 * 7;
-const MODEL_SIZE = "s"; // n, s, m, l, x
+const IOU_THRESHOLD = 0.40;
+const CONF_THRESHOLD = 0.20;
+const SHRINK_WIDTH = 32 * 6;
+const SHRINK_HEIGHT = 32 * 6;
+const MODEL_SIZE = "n"; // n, s, m, l, x
 
 
 const InferenceWebcam = ({ frame, setAnnotatedImgSrc }) => {

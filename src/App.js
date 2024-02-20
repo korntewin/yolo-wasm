@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import { useState, useRef } from 'react';
 import './App.css';
 
-import WebcamCapture from './components/carmera.component';
+import WebcamCapture from './components/camera.component';
 import InferenceWebcam from './components/inference.component';
 import FlexContainer from './components/flexcontainer.component';
 

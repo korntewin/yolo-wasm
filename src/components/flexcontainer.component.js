@@ -7,7 +7,7 @@ const FlexContainer = styled.div`
     justify-content: space-between;
 
     > * {
-    flex: 1 0 21em; // Adjust this value based on when you want to switch to one column
+    flex: 1 0 15em; // Adjust this value based on when you want to switch to one column
     margin: 0 10px;
     }
 `
