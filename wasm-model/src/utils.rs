@@ -1,6 +1,6 @@
 use crate::coco_classes::NAMES as COCOE_CLASS_NAMES;
 use crate::log::log;
-use crate::yolov8_model::Bbox;
+use crate::yolov8_model::{Bbox, Multiples};
 use base64::{engine::general_purpose, Engine};
 use candle_core::{DType, Device, IndexOp, Result, Tensor};
 use image::DynamicImage;
@@ -10,6 +10,23 @@ use std::io::Cursor;
 
 pub static LEGEND_SIZE: u32 = 14;
 // Optimal width and height to maximize model speed
+
+pub fn model_multiplier(model_size: &str) -> Multiples {
+    match model_size {
+        "s" => Multiples::s(),
+        "m" => Multiples::m(),
+        "l" => Multiples::l(),
+        "x" => Multiples::x(),
+        _ => Multiples::n(),
+    }
+}
+
+pub fn model_url(model_size: &str) -> String {
+    format!(
+        "https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8{}.safetensors?download=true",
+        model_size
+    )
+}
 
 pub fn get_dyn_image(img: &str) -> ImageResult<DynamicImage> {
     let base64_data = img.split(",").collect::<Vec<&str>>()[1];

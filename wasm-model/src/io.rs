@@ -1,5 +1,6 @@
 use crate::log::log;
-use crate::yolov8_model::{Multiples, YoloV8};
+use crate::utils::{model_multiplier, model_url};
+use crate::yolov8_model::YoloV8;
 
 use candle_core::{DType, Device};
 use candle_nn::VarBuilder;
@@ -17,23 +18,6 @@ pub struct ModelData {
 }
 
 pub static LAZY_MODEL: Lazy<Mutex<Option<YoloV8>>> = Lazy::new(|| Mutex::new(None));
-
-fn model_multiplier(model_size: &str) -> Multiples {
-    match model_size {
-        "s" => Multiples::s(),
-        "m" => Multiples::m(),
-        "l" => Multiples::l(),
-        "x" => Multiples::x(),
-        _ => Multiples::n(),
-    }
-}
-
-fn model_url(model_size: &str) -> String {
-    format!(
-        "https://huggingface.co/lmz/candle-yolo-v8/resolve/main/yolov8{}.safetensors?download=true",
-        model_size
-    )
-}
 
 pub async fn download_binary(model_size: &str) -> ModelData {
     let window = web_sys::window().ok_or("window").unwrap();
@@ -69,10 +53,10 @@ pub async fn get_model(model_size: &str) {
     let model_data = download_binary(model_size).await;
     // let device = Device::Cpu;
     let device = Device::new_cuda(0).unwrap_or(Device::Cpu);
-    let vb = unsafe {
-        VarBuilder::from_buffered_safetensors(model_data.weights, DType::F32, &device).unwrap()
-    };
+    let vb =
+        VarBuilder::from_buffered_safetensors(model_data.weights, DType::F32, &device).unwrap();
     let model = YoloV8::load(vb, model_multiplier(model_size), 80).unwrap();
     log(&format!("Model loaded: {:?}", model));
+    log(&format!("Model size: {:?}", model_size));
     *LAZY_MODEL.lock().unwrap() = Some(model);
 }

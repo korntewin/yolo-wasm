@@ -776,7 +776,7 @@ pub fn report_detect(
     let (initial_h, initial_w) = (img.height() as f32, img.width() as f32);
     let w_ratio = initial_w / w as f32;
     let h_ratio = initial_h / h as f32;
-    for (class_index, bboxes_for_class) in bboxes.iter_mut().enumerate() {
+    for (_class_index, bboxes_for_class) in bboxes.iter_mut().enumerate() {
         for b in bboxes_for_class.iter_mut() {
             b.xmin = (b.xmin * w_ratio).clamp(0., initial_w - 1.);
             b.ymin = (b.ymin * h_ratio).clamp(0., initial_h - 1.);

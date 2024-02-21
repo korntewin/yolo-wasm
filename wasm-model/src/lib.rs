@@ -51,7 +51,13 @@ pub fn test_lazy_model(img: String, shrink_width: f32, shrink_height: f32) {
 }
 
 #[wasm_bindgen]
-pub fn test_identify_bboxes(img: String, shrink_width: f32, shrink_height: f32, conf_threshold: f32, iou_threshold: f32) {
+pub fn test_identify_bboxes(
+    img: String,
+    shrink_width: f32,
+    shrink_height: f32,
+    conf_threshold: f32,
+    iou_threshold: f32,
+) {
     let img = transform_image(img, shrink_width, shrink_height).unwrap();
     let maybe_model = LAZY_MODEL.lock().unwrap();
     log(&format!("Finished locking the model"));
@@ -68,7 +74,13 @@ pub fn test_identify_bboxes(img: String, shrink_width: f32, shrink_height: f32, 
 }
 
 #[wasm_bindgen]
-pub fn test_annotate_images(img: String, shrink_width: f32, shrink_height: f32, conf_threshold: f32, iou_threshold: f32) {
+pub fn test_annotate_images(
+    img: String,
+    shrink_width: f32,
+    shrink_height: f32,
+    conf_threshold: f32,
+    iou_threshold: f32,
+) {
     let orig_img = get_dyn_image(&img).unwrap();
     let img = transform_image(img, shrink_width, shrink_height).unwrap();
     let maybe_model = LAZY_MODEL.lock().unwrap();
@@ -78,7 +90,7 @@ pub fn test_annotate_images(img: String, shrink_width: f32, shrink_height: f32, 
         log(&format!("Before model forwarding"));
         let pred = model.forward(&img).unwrap().squeeze(0).unwrap();
         let bboxes = identify_bboxes(&pred, conf_threshold, iou_threshold);
-        let annotated_img =
+        let _annotated_img =
             annotate_images(orig_img, shrink_width, shrink_height, &bboxes.unwrap());
         log(&format!("After annotate image"));
     } else {
@@ -87,7 +99,13 @@ pub fn test_annotate_images(img: String, shrink_width: f32, shrink_height: f32, 
 }
 
 #[wasm_bindgen]
-pub fn js_annotate_images(img: String, shrink_width: f32, shrink_height: f32, conf_threshold: f32, iou_threshold: f32) -> String {
+pub fn js_annotate_images(
+    img: String,
+    shrink_width: f32,
+    shrink_height: f32,
+    conf_threshold: f32,
+    iou_threshold: f32,
+) -> String {
     let orig_img = get_dyn_image(&img).unwrap();
     let img = transform_image(img, shrink_width, shrink_height).unwrap();
     let maybe_model = LAZY_MODEL.lock().unwrap();
