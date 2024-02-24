@@ -23,6 +23,9 @@ Below is the simple architecture for this web application:
 1. Users will access the domain hosted on **Cloudflare**
 2. The request will be routed through **Cloudflare infra** and proxied to **AWS Cloudfront**
 3. **AWS Cloudfront**, then, will fetch the website content from **AWS S3** into users' browser
-4. HTML, Javascript, and WASM will be rendered at users' browser for real time Object Detection!
+4. HTML, Javascript, and WASM will be rendered at users' browser for real time Object Detection with the following as a main components:  
+    4.1 **Candle** ML Framework in *Rust* compiled to **WebAssembly** as a main inference engine  
+    4.2 **React** as a main rendering UI  
+    4.3 **react-webcam** for streaming video frame from webcam
 
 <img src="./imgs/architecture.svg">
