@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import Webcam from "react-webcam";
 
 const RENDER_INTERVAL = 200;
@@ -13,7 +13,11 @@ const videoConstraints = {
 
 const WebcamCapture = ({ webcamRef, setFrame }) => {
 
+  // Capture video frame as stream on interval = 1 sec
+  const intervalId = useRef(null);
+
   // The function for capturing the video frame
+  // eslint-disable-next-line
   const handleUserMedia = () => {
 
     if (webcamRef.current === null || webcamRef.current.stream === undefined) {
@@ -24,13 +28,13 @@ const WebcamCapture = ({ webcamRef, setFrame }) => {
     setFrame(screenshot);
   }
 
-  // Capture video frame as stream on interval = 1 sec
-  let intervalId = null;
-  const handleUserMediaWithInterval = () => {
-    intervalId = setInterval(handleUserMedia, RENDER_INTERVAL);
-  }
-
   useEffect(() => {
+
+    const handleUserMediaWithInterval = () => {
+      let id = setInterval(handleUserMedia, RENDER_INTERVAL);
+      intervalId.current = id;
+    }
+
     handleUserMediaWithInterval();
     return () => {
       clearInterval(intervalId);

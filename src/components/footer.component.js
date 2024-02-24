@@ -12,10 +12,6 @@ const Section = styled.div`
   margin-left: 10px;
 `;
 
-const Title = styled.h2`
-  font-size: 1.2em;
-`;
-
 const Content = styled.b`
   font-size: 0.8em;
 `;
@@ -24,11 +20,23 @@ const Footer = () => (
     <FooterContainer>
         Please follow me here 👉
         <Section>
-            <Content> <a href="https://github.com/korntewin" target="_blank">Github</a> </Content>
-        </Section> 
-        | 
+            <Content>
+                <a
+                    href="https://github.com/korntewin"
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    Github
+                </a>
+            </Content>
+        </Section>
+        |
         <Section>
-            <Content> <a href="https://www.linkedin.com/in/korntewin/" target="_blank">Linkedin</a> </Content>
+            <Content>
+                <a href="https://www.linkedin.com/in/korntewin/" target="_blank" rel="noreferrer">
+                    Linkedin
+                </a>
+            </Content>
         </Section>
         👈
     </FooterContainer>
