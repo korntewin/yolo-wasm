@@ -15,3 +15,14 @@ _Note that, the web app seems to have the most performance on firefox._
 2. run `npm run build:wasm` to build webassembly artifact  
 3. run `npm run start` to test locally 
 4. run `npm run build` to build the deployable artifact
+
+> 🧑‍💻 You can also visit <a href="https://yolo.crypto-bot-gcp.trade" target="_blank" rel="noopener noreferrer"> yolo.crypto-bot-gcp.trade </a> for my web application demo!
+
+# Simple Architecture
+Below is the simple architecture for this web application:
+1. Users will access the domain hosted on **Cloudflare**
+2. The request will be routed through **Cloudflare infra** and proxied to **AWS Cloudfront**
+3. **AWS Cloudfront**, then, will fetch the website content from **AWS S3** into users' browser
+4. HTML, Javascript, and WASM will be rendered at users' browser for real time Object Detection!
+
+<img src="./imgs/architecture.svg">
