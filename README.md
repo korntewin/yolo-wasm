@@ -6,7 +6,7 @@ The web application is run & rendered purely on client-side 🖥️ without tran
 
 The YOLOv8 model is backed by Rust programming language compiled into WebAssembly 🎉 which is imported and modified from 🕯️[candle](https://github.com/huggingface/candle) repository. Below is the example of webapp:
 
-<img src="./imgs/demo.png" width="950" height="480">
+<img src="./imgs/demo.png" width="auto">
 
 _Note that, the web app seems to have the most performance on firefox._
 
