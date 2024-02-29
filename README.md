@@ -6,7 +6,7 @@ The web application is run & rendered purely on client-side 🖥️ without tran
 
 The YOLOv8 model is backed by Rust programming language compiled into WebAssembly 🎉 which is imported and modified from 🕯️[candle](https://github.com/huggingface/candle) repository. Below is the example of webapp:
 
-<img src="./imgs/demo.png" width="auto">
+<img src="./imgs/demo.png" width="950" height="480">
 
 _Note that, the web app seems to have the most performance on firefox._
 
@@ -28,4 +28,4 @@ Below is the simple architecture for this web application:
     4.2 **React** as a main rendering UI  
     4.3 **react-webcam** for streaming video frame from webcam
 
-<img src="./imgs/architecture.svg">
+<img src="./imgs/architecture.png" width="auto">
