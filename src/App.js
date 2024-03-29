@@ -31,7 +31,7 @@ function App() {
           </div>
           <div>
             <InferenceWebcam frame={frame} setAnnotatedImgSrc={setAnnotatedImgSrc} />
-            {annotatedImgSrc && <img src={annotatedImgSrc} alt="annotated" />}
+            {annotatedImgSrc && <img src={annotatedImgSrc} alt="annotated" width="auto"/>}
           </div>
         </FlexContainer>
       </Layout>
